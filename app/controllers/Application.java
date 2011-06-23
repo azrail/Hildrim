@@ -3,7 +3,8 @@ package controllers;
 import java.sql.Timestamp;
 
 import helpers.MisoApi;
-import models.Miso;
+import models.MisoCheckin;
+import models.MisoUser;
 import models.User;
 
 import org.scribe.builder.ServiceBuilder;
@@ -49,7 +50,7 @@ public class Application extends Controller {
 			redirect("/auth");
 		}
 
-		if (user.lastupdate == null) {
+		if (user.miso == null || user.lastupdate == null) {
 			Token accessToken = new Token(user.accessToken, user.accessTokenSecret);
 			OAuthRequest request = new OAuthRequest(Verb.GET, "https://gomiso.com/api/oauth/v1/users/show.json");
 			getConnector().signRequest(accessToken, request);
@@ -58,7 +59,7 @@ public class Application extends Controller {
 			String userdetails = response.getBody().substring(8);
 			userdetails = userdetails.substring(0, userdetails.length() - 1);
 
-			Miso m = new Gson().fromJson(userdetails, Miso.class);
+			MisoUser m = new Gson().fromJson(userdetails, MisoUser.class);
 			user.miso = m;
 			user.miso.save();
 			user.lastupdate = new Timestamp(System.currentTimeMillis());
@@ -66,7 +67,11 @@ public class Application extends Controller {
 		}
 
 		System.out.println(user.lastupdate);
-
+		System.out.println(new Timestamp(System.currentTimeMillis()));
+		
+		
+		MisoCheckin.updateCheckins(user);
+		
 		return initalized;
 
 	}

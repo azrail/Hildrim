@@ -1,8 +1,13 @@
 package models;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import play.data.validation.Email;
@@ -31,13 +36,18 @@ public class User extends Model {
 	public Timestamp	lastupdate;
 
 	@OneToOne
-	public Miso			miso;
+	public MisoUser			miso;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	public List<MisoCheckin>	misoCheckins;
+	
 
 	public User(String email, String password, String username) {
 		this.email = email;
 		this.password = password;
 		this.username = username;
-		this.miso = new Miso();
+		this.misoCheckins = new ArrayList<MisoCheckin>();
+		this.miso = new MisoUser();
 		this.miso.save();
 	}
 

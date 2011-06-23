@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import play.db.jpa.GenericModel;
 
 @Entity
-public class Miso extends GenericModel {
+public class MisoUser extends GenericModel {
 	@Id
 	public Float					id;
 	public String					full_name;
