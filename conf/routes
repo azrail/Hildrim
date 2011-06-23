@@ -8,7 +8,8 @@
 GET     /                                       Application.index
 GET     /auth                                   Application.authenticate
 GET     /series/{media_id}/                     Application.showSeries
-
+GET     /series/{media_id}/checkinNextEpisode/  Application.checkinNextEpisode
+GET     /series/{media_id}/{error}/  			Application.showSeries
 # Ignore favicon requests
 GET     /favicon.ico                            404
 

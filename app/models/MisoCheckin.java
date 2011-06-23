@@ -17,6 +17,7 @@ import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
 
+import play.Logger;
 import play.db.jpa.Model;
 
 import com.google.gson.Gson;
@@ -134,12 +135,12 @@ public class MisoCheckin extends Model {
 			getCheckinBody(user, url);
 
 			while (getOlderCheckins(user)) {
-				System.out.println("Getting More Checkins...");
+				Logger.debug("Getting More Checkins...");
 			}
 		}
 
 		while (getNewestCheckins(user)) {
-			System.out.println("Getting More Checkins...");
+			Logger.debug("Getting More Checkins...");
 		}
 	}
 
@@ -217,9 +218,6 @@ public class MisoCheckin extends Model {
 	 *            String Array with Json Checkin Data
 	 */
 	public static void getCheckins(User user, String[] checkins) {
-
-		System.out.println(checkins.length + " found...");
-
 		for (String checkin : checkins) {
 			if (!checkin.startsWith("{")) {
 				checkin = "{" + checkin;
@@ -235,9 +233,10 @@ public class MisoCheckin extends Model {
 				MisoCheckin mc = find(misoCheckin.id, user);
 
 				if (mc == null) {
+					Logger.debug("%s found...",checkins.length);
 					mc = new MisoCheckin();
 					mc.checkin_id = misoCheckin.id;
-
+					
 					DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 					DateTime dt = fmt.parseDateTime(misoCheckin.created_at.replace("Z", ".000Z"));
 
@@ -347,6 +346,22 @@ public class MisoCheckin extends Model {
 		return sl;
 	}
 
+	/**
+	 * get the SeriesDetails
+	 * @param user The Authenticated User
+	 * @param media_id
+	 * @return Object MisoCheckin or Null if nothing found
+	 */
+	public static MisoCheckin findSeriesEpisode(User user, Long media_id) {
+		return MisoCheckin.find("user_id = ? and media_id = ? order by media_title, episode_label desc", user.id, media_id).first();
+	}
+	
+	/**
+	 * Get all Episodes from an Series
+	 * @param user The Authenticated User
+	 * @param media_id
+	 * @return Object MisoCheckin or Null if nothing found
+	 */
 	public static List<MisoCheckin> findSeriesEpisodes(User user, Long media_id) {
 		return MisoCheckin.find("user_id = ? and media_id = ? order by media_title, episode_label desc", user.id, media_id).fetch();
 	}
