@@ -32,7 +32,7 @@ import play.data.validation.Required;
 import play.db.jpa.Model;
 
 /**
- * Represents on Miso Checkin
+ * Represents an Miso Checkin
  * 
  * @author prime
  *
