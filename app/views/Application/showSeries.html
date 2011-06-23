@@ -1,9 +1,14 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-<h1>Hello ${user.username}</h1>
+<h1>Hello ${user.username} you have watched ${seriesEpisodes.size()} of ${misoSeries.episode_count} ${misoCheckin.media_title} Episodes in ${misoSeries.season_count} Seasons</h1>
+
+#{if error}
+<strong>Time between the Checkins to short</strong>
+#{/if}
 
 <ul>
+<li><a href="@{Application.checkinNextEpisode(misoCheckin.media_id)}">Checkin to the Next Episode</a></li>
 #{list seriesEpisodes}
 <li>
 	${_.episode_label} - ${_.episode_title}

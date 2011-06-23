@@ -3,20 +3,26 @@ package controllers;
 import helpers.MisoApi;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import models.MisoCheckin;
+import models.MisoEpisode;
+import models.MisoSeries;
 import models.User;
 
 import org.scribe.builder.ServiceBuilder;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
 import org.scribe.model.Token;
+import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
+import com.google.gson.Gson;
+
+import play.Logger;
 import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
@@ -25,6 +31,8 @@ import play.mvc.With;
 @With(Secure.class)
 public class Application extends Controller {
 	public static OAuthService	service	= null;
+	public static int			GET		= 1;
+	public static int			POST	= 2;
 
 	@Before
 	static void setConnectedUser() {
@@ -46,12 +54,67 @@ public class Application extends Controller {
 		render(user, lastSeriesEpisodes);
 	}
 
-	public static void showSeries(Long media_id) {
+	public static void showSeries(Long media_id,Boolean error) {
 		User user = getUser();
 		isUserInitalized(user);
-
 		List<MisoCheckin> seriesEpisodes = MisoCheckin.findSeriesEpisodes(user, media_id);
-		render(user, seriesEpisodes);
+
+		MisoSeries misoSeries = MisoSeries.getSeriesDetails(media_id, user);
+		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
+		render(user, seriesEpisodes, misoSeries, misoCheckin, error);
+	}
+
+	public static void checkinNextEpisode(Long media_id) {
+		User user = getUser();
+		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
+		Long nextEpisode = misoCheckin.episode_num + 1;
+		Long season = misoCheckin.episode_season_num;
+		Logger.debug("Check in to %s (%s) - %s", misoCheckin.media_title, media_id, nextEpisode);
+
+		MisoEpisode me = getEpisodeDetails(media_id, user, nextEpisode, season);
+		Boolean error = false;
+		
+		if (me != null) {
+			String checkinBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/checkins.json?media_id=" + media_id + "&season_num=" + me.season_num + "&episode_num=" + me.episode_num, POST);
+			if (checkinBody.contains("That check-in is either a duplicate or invalid")) {
+				error = true;
+			}
+		}
+
+		redirect("/series/" + media_id + "/"+error+"/");
+	}
+
+	/**
+	 * @param media_id
+	 * @param user
+	 * @param episode
+	 * @param season
+	 */
+	public static MisoEpisode getEpisodeDetails(Long media_id, User user, Long episode, Long season) {
+
+		MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode, season);
+
+		if (misoEpisode == null) {
+			String episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, GET);
+
+			if (episodeBody.contains("Episode not found")) {
+				episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + (season + 1) + "&episode_num=" + 1, GET);
+			}
+
+			if (episodeBody.contains("Episode not found")) {
+				return null;
+			}
+
+			episodeBody = episodeBody.substring(11, episodeBody.length() - 1);
+			misoEpisode = new Gson().fromJson(episodeBody, MisoEpisode.class);
+			misoEpisode.media_id = media_id;
+			misoEpisode.save();
+			return misoEpisode;
+
+		} else {
+			return misoEpisode;
+		}
+
 	}
 
 	public static boolean isUserInitalized(User user) {
@@ -93,6 +156,31 @@ public class Application extends Controller {
 		}
 
 		redirect("/");
+	}
+
+	/**
+	 * Build an Json Request and returns the Body
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @param url
+	 *            Oauth url to get the Json Data
+	 * @return String Jsonbody
+	 */
+	public static String getJsonBodyforUrl(User user, String url, int type) {
+		Logger.debug("Fetching %s", url);
+		Token accessToken = new Token(user.accessToken, user.accessTokenSecret);
+		OAuthRequest request;
+
+		if (type == POST) {
+			request = new OAuthRequest(Verb.POST, url);
+		} else {
+			request = new OAuthRequest(Verb.GET, url);
+		}
+
+		Application.getConnector().signRequest(accessToken, request);
+		Response response = request.send();
+		return response.getBody();
 	}
 
 	public static OAuthService getConnector() {
