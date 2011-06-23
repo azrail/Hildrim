@@ -1,17 +1,19 @@
 package controllers;
 
-import java.sql.Timestamp;
-
 import helpers.MisoApi;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+
 import models.MisoCheckin;
-import models.MisoUser;
 import models.User;
 
 import org.scribe.builder.ServiceBuilder;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
 import org.scribe.model.Token;
-import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
@@ -19,8 +21,6 @@ import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
 import play.mvc.With;
-
-import com.google.gson.Gson;
 
 @With(Secure.class)
 public class Application extends Controller {
@@ -35,52 +35,38 @@ public class Application extends Controller {
 	}
 
 	public static void index() {
+		User user = getUser();
+		isUserInitalized(user);
 
-		isUserInitalized();
-
-		// render();
+		TreeMap<String, MisoCheckin> lse = MisoCheckin.findBaseSeries(user);
+		List<MisoCheckin> lastSeriesEpisodes = new ArrayList();
+		for (Entry<String, MisoCheckin> mc : lse.entrySet()) {
+			lastSeriesEpisodes.add(mc.getValue());
+		}
+		render(user, lastSeriesEpisodes);
 	}
 
-	public static boolean isUserInitalized() {
-
-		boolean initalized = false;
-
+	public static void showSeries(Long media_id) {
 		User user = getUser();
+		isUserInitalized(user);
+
+		List<MisoCheckin> seriesEpisodes = MisoCheckin.findSeriesEpisodes(user, media_id);
+		render(user, seriesEpisodes);
+	}
+
+	public static boolean isUserInitalized(User user) {
+
 		if (user.accessToken == null) {
 			redirect("/auth");
 		}
-
-		if (user.miso == null || user.lastupdate == null) {
-			Token accessToken = new Token(user.accessToken, user.accessTokenSecret);
-			OAuthRequest request = new OAuthRequest(Verb.GET, "https://gomiso.com/api/oauth/v1/users/show.json");
-			getConnector().signRequest(accessToken, request);
-			Response response = request.send();
-
-			String userdetails = response.getBody().substring(8);
-			userdetails = userdetails.substring(0, userdetails.length() - 1);
-
-			MisoUser m = new Gson().fromJson(userdetails, MisoUser.class);
-			user.miso = m;
-			user.miso.save();
-			user.lastupdate = new Timestamp(System.currentTimeMillis());
-			user.save();
-		}
-
-		System.out.println(user.lastupdate);
-		System.out.println(new Timestamp(System.currentTimeMillis()));
-		
-		
+		User.updateMisoUserDetails(user);
 		MisoCheckin.updateCheckins(user);
-		
-		return initalized;
-
+		return true;
 	}
 
 	public static void authenticate() {
-		getConnector();
-
-		Token requestToken = service.getRequestToken();
-		String authUrl = service.getAuthorizationUrl(requestToken);
+		Token requestToken = getConnector().getRequestToken();
+		String authUrl = getConnector().getAuthorizationUrl(requestToken);
 
 		User user = getUser();
 		if (user.requestToken == null || user.authUrl == null || !user.requestToken.equals(requestToken) || !user.authUrl.equals(authUrl)) {
@@ -96,7 +82,7 @@ public class Application extends Controller {
 		User user = getUser();
 		Verifier verifier = new Verifier(oauth_verifier);
 		Token requestToken = new Token(user.requestToken, user.requestTokenSecret);
-		Token accessToken = service.getAccessToken(requestToken, verifier);
+		Token accessToken = getConnector().getAccessToken(requestToken, verifier);
 
 		if (user.oauth_token == null || user.oauth_verifier == null || !user.oauth_token.equals(oauth_token) || !user.oauth_verifier.equals(oauth_verifier)) {
 			user.oauth_token = oauth_token;

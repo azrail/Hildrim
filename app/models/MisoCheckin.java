@@ -1,41 +1,33 @@
 package models;
 
-import java.io.EOFException;
-import java.sql.Date;
-import java.sql.Timestamp;
-
 import helpers.MisoCheckinPojo;
 
-import javax.persistence.Column;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.TreeMap;
+
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import org.joda.time.DateTime;
-import org.joda.time.JodaTimePermission;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Ignore;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
 
+import play.db.jpa.Model;
+
 import com.google.gson.Gson;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 
 import controllers.Application;
-
-import play.data.validation.Required;
-import play.db.jpa.Model;
 
 /**
  * Represents an Miso Checkin
  * 
  * @author prime
- *
+ * 
  */
 @Entity
 public class MisoCheckin extends Model {
@@ -161,7 +153,7 @@ public class MisoCheckin extends Model {
 	private static boolean getNewestCheckins(User user) {
 
 		Long checkinid = findLast(user).checkin_id;
-		
+
 		String url = CHECKINURL + user.miso.id + "&since_id=" + checkinid + "&count=20";
 		String[] checkins = getCheckinBody(user, url);
 
@@ -194,8 +186,11 @@ public class MisoCheckin extends Model {
 
 	/**
 	 * Build the Oauth Request and fetch the Checkins
-	 * @param user The Authenticated User
-	 * @param url Checkin url
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @param url
+	 *            Checkin url
 	 * @return String[] json Checkins
 	 */
 	public static String[] getCheckinBody(User user, String url) {
@@ -323,5 +318,36 @@ public class MisoCheckin extends Model {
 	 */
 	public static MisoCheckin findLast(User user) {
 		return MisoCheckin.find("user_id = ?  order by checkin_id desc", user.id).first();
+	}
+
+	/**
+	 * Find all Series and Episodes
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return List<MisoCheckin> list of Episodes
+	 */
+	public static List<MisoCheckin> findSeries(User user) {
+		return MisoCheckin.find("user_id = ? and isMovie = false order by checkin_id desc group by media_title", user.id).fetch();
+	}
+
+	/**
+	 * Find Series, no Episodes
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return HashMap<String,Long> with the Series
+	 */
+	public static TreeMap<String, MisoCheckin> findBaseSeries(User user) {
+		TreeMap<String, MisoCheckin> sl = new TreeMap<String, MisoCheckin>();
+		List<MisoCheckin> mc = MisoCheckin.find("user_id = ? and isMovie = false order by media_title, episode_label", user.id).fetch();
+		for (MisoCheckin misoCheckin : mc) {
+			sl.put(misoCheckin.media_title,misoCheckin);
+		}
+		return sl;
+	}
+
+	public static List<MisoCheckin> findSeriesEpisodes(User user, Long media_id) {
+		return MisoCheckin.find("user_id = ? and media_id = ? order by media_title, episode_label desc", user.id, media_id).fetch();
 	}
 }

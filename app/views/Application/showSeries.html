@@ -1,0 +1,12 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+<h1>Hello ${user.username}</h1>
+
+<ul>
+#{list seriesEpisodes}
+<li>
+	${_.episode_label} - ${_.episode_title}
+</li>
+#{/list}
+</ul>

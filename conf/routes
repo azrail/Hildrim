@@ -7,6 +7,7 @@
 
 GET     /                                       Application.index
 GET     /auth                                   Application.authenticate
+GET     /series/{media_id}/                     Application.showSeries
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
