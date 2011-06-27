@@ -68,26 +68,25 @@ public class Start extends Controller {
 			user.save();
 		}
 		user = User.updateMisoUserDetails(user);
-		String randomID = Codec.UUID();
+
 		if (!session.get("requestTokenSecret").equals(user.requestTokenSecret)) {
 			redirect("/");
 		}
-		render("Start/form.html", randomID, user);
+		render("Start/form.html", user);
 	}
 
-	public static void setPasswordEmail(Long userID, @Required(message = "E-Mail is required") String email, @Required(message = "A password is required") String password, String randomID) {
+	public static void setPasswordEmail(Long userID, @Required(message = "E-Mail is required") String email, @Required(message = "A password is required") String password) {
 		User user = User.findById(userID);
 		if (!session.get("requestTokenSecret").equals(user.requestTokenSecret)) {
 			redirect("/");
 		}
 		if (validation.hasErrors()) {
-			render("Start/form.html", user, randomID);
+			render("Start/form.html", user);
 		}
 		flash.success("Thanks for registering %s, now login with e-mail and password", user.username);
 		user.password = password;
 		user.email = email;
 		user.save();
-		Cache.delete(randomID);
 		redirect("/login");
 	}
 
