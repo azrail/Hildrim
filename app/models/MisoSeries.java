@@ -60,7 +60,12 @@ public class MisoSeries extends Model {
 	}
 
 	public MisoEpisode getLatestCheckinEpisode(String label) {
-		return MisoEpisode.find("media_id = ? and label = ? order by label", media_id, label).first();
+		MisoEpisode me = MisoEpisode.find("media_id = ? and label = ? order by label", media_id, label).first();
+		
+		if (me == null) {
+			return MisoEpisode.find("media_id = ? order by label", media_id).first();
+		}
+		 return me;
 	}
 
 	/**
