@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML> 
+<!--[if IE 7 ]>    <html class="ie7" lang="en"> <![endif]--> 
+<!--[if IE 8 ]>    <html class="ie8" lang="en"> <![endif]--> 
+<!--[if IE 9 ]>    <html class="ie9" lang="en"> <![endif]--> 
+<!--[if (gte IE 9)|!(IE)]><!--> <html class="no-js" lang="en"> <!--<![endif]--> 
 
 <html>
     <head>
@@ -8,9 +12,21 @@
         #{get 'moreStyles' /}
         <link rel="shortcut icon" type="image/png" href="@{'/public/images/favicon.png'}">
         <script src="@{'/public/javascripts/jquery-1.5.2.min.js'}" type="text/javascript" charset="utf-8"></script>
+        <script src="@{'/public/javascripts/base.js'}" type="text/javascript" charset="utf-8"></script>
         #{get 'moreScripts' /}
+        
+        <meta name="SKYPE_TOOLBAR" content ="SKYPE_TOOLBAR_PARSER_COMPATIBLE"/>
+        <!-- font replacement --> 
+		<script type="text/javascript"> 
+	    	Cufon.replace('h2', { fontFamily: 'ArdleysHand' });
+	    	Cufon.replace('#footer h3', { fontFamily: 'Gotham Narrow Light' });
+	    	Cufon.replace('#tagline h4', { fontFamily: 'Gotham Narrow Light' });
+	    	Cufon.replace('h3', { fontFamily: 'Gotham Narrow Light' });
+	    	Cufon.replace('#mainContent .post blockquote', { fontFamily: 'Gotham Narrow Light' });
+		</script> 
+		<!--end font replacement--> 
     </head>
-    <body>
+    <body class="clearfix" id="blogMain">
         #{doLayout /}
     </body>
 </html>

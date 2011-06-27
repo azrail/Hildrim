@@ -1,17 +1,110 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-<h1>Hello ${user.username} you have watched ${seriesEpisodes.size()} of ${misoSeries.episode_count} ${misoCheckin.media_title} Episodes in ${misoSeries.season_count} Seasons</h1>
+<div id="siteWrapper" class="container_16"> 
+<div id="main"><div id="top"></div>
 
-#{if error}
-<strong>Time between the Checkins to short</strong>
-#{/if}
+<div id="header" class="grid_16">
+<ul id="mainNav"> 
+%{
+	perColumn = Math.round(lastSeriesEpisodes.size()/4);
+	counter = 0;
+	4.times {
+}%
+	<li class="menu grid_2">
+	<ul class="subMenu">
+		%{ perColumn.times { }%
+			#{if lastSeriesEpisodes.size() > counter}
+			%{ cnt = counter++ }%
+			<li><a href="@{Application.showSeries(lastSeriesEpisodes.get(cnt).media_id)}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
+			#{/if}
+		%{ } }%
+	</ul>
+	</li> 
+%{
+	}
+}%
+	</ul>			
+</div>
 
-<ul>
-<li><a href="@{Application.checkinNextEpisode(misoCheckin.media_id)}">Checkin to the Next Episode</a></li>
-#{list seriesEpisodes}
-<li>
-	${_.episode_label} - ${_.episode_title}
-</li>
-#{/list}
-</ul>
+%{
+ latest = misoSeries.getLatestCheckinEpisode(misoCheckin.episode_label); 
+}%
+
+<div id="mainContent" class="grid_9">
+		<div class="post postSml clearfix">
+		<a href="http://gomiso.com/m/${misoCheckin.media_id}" id="${misoCheckin.media_id}" title="${misoCheckin.media_title}"><h1>${misoCheckin.media_title}</h1></a>
+		<h2><a href="http://gomiso.com/m/${misoCheckin.media_id}/seasons/${latest.season_num}/episodes/${latest.episode_num}" title="See on Miso"><cufon class="cufon cufon-canvas" alt="${misoCheckin.episode_title} (${seriesEpisodes.size()}/${misoSeries.episode_count})" style="width: 34px; height: 16px; "><canvas width="51" height="24" style="width: 51px; height: 24px; top: 0px; left: -5px; "></canvas></cufon></a></h2>
+		<img src="${misoCheckin.media_poster_url}" alt="${misoCheckin.media_title}">
+		<p class="summary">${latest.summary}</p>
+		<p class="summary"><img style="display: block; margin-left: auto; margin-right: auto;float: none;" src="${latest.poster_image_url}" alt="${latest.title}"></p>
+		<p class="summary">${latest.cast}</p>
+		<span class="user">${misoCheckin.user_username}</span>
+		<span class="date">${latest.aired_date.format('dd.MM.yyyy','de')}</span>
+		<span class="comments"><a href="http://gomiso.com/m/${misoCheckin.media_id}/seasons/${latest.season_num}/episodes/${latest.episode_num}" title="See on Miso">${misoCheckin.episode_label}</a></span>
+		<a class="readMore" href="@{Application.checkinNextEpisode(misoCheckin.media_id)}"><h2><cufon class="cufon cufon-canvas" alt="Checkin to the Next Episode" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
+	</div>
+</div>
+
+
+
+<div id="header" class="grid_16">
+<ul id="mainNav"> <h1>Chekins</h1> <h2><cufon class="cufon cufon-canvas" alt="Click for Infos" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2>
+%{
+	perColumn = Math.round(seriesEpisodes.size()/4);
+	if(perColumn == 0) { perColumn = 1;}
+	counter = 0;
+	4.times {
+}%
+	<li class="menu grid_2">
+	<ul class="subMenu">
+		%{ perColumn.times { }%
+			#{if seriesEpisodes.size() > counter}
+			%{ cnt = counter++; }%
+			<li><a href="@{Application.showEpisode(seriesEpisodes.get(cnt).media_id,seriesEpisodes.get(cnt).episode_season_num,seriesEpisodes.get(cnt).episode_num)}" title="${seriesEpisodes.get(cnt).media_title}">${seriesEpisodes.get(cnt).episode_label} - ${seriesEpisodes.get(cnt).created_at.format('dd.MM.yyyy','de')}</a></li>
+			#{/if}
+		%{ } }%
+	</ul>
+	</li> 
+%{
+	}
+}%
+	</ul>			
+</div>
+
+<div id="header" class="grid_16">
+<ul id="mainNav"><h1>Episodelist</h1> <h2><cufon class="cufon cufon-canvas" alt="Click for infos and Checkin" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2>
+
+%{
+	for (long i = 0L; i <= seasons.size(); i++) {	
+	season = seasons.get(i);
+	
+	if (season != null) {
+}%
+	<ul id="seasonNav"><h3>Season ${i}</h3>
+	
+	%{
+		perColumn = Math.round(season.size()/4);
+		if(perColumn == 0) { perColumn = 1;}
+		counter = 0;
+		4.times {
+		
+	}%
+	<li class="menu grid_2">
+	<ul class="subMenu">
+	%{ perColumn.times { }%
+			#{if season.size() > counter}
+			%{cnt = counter++; episodes = season.get(cnt);}%
+			<li><a href="@{Application.showEpisode(episodes.media_id,episodes.season_num,episodes.episode_num)}" title="${episodes.title}">${episodes.label} - ${episodes.aired_date.format('dd.MM.yyyy','de')}</a></li>
+			#{/if}
+	%{ } }%	
+	</ul>
+	</li> 
+%{
+	} }% </ul> %{ } }
+}%
+	</ul>
+</div>
+
+</div>
+</div>

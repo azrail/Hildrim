@@ -1,0 +1,79 @@
+#{extends 'mainMobile.html' /}
+#{set title:'Home' /}
+
+%{
+ latest = misoSeries.getLatestCheckinEpisode(misoCheckin.episode_label); 
+}%
+
+<div data-role="page">
+
+	<div data-role="header">
+		<a href="/m/" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
+		<h1>${misoCheckin.media_title} - ${misoCheckin.episode_label}</h1> 
+	</div>
+
+	<div data-role="content"> 
+		<div class="content-primary">
+			<p>${latest.summary}</p>
+			<p><img style="display: block; margin-left: auto; margin-right: auto;float: none;" src="${latest.poster_image_url}" alt="${latest.title}"></p>
+			<p>${latest.cast}</p>
+			<ul data-role="listview" data-inset="true">
+				<li>Last Episode: ${misoCheckin.episode_label}</li>
+				<li>Checkin on: ${latest.aired_date.format('dd.MM.yyyy','de')}</li>
+				<li><a class="readMore" href="@{Application.checkinNextEpisode(misoCheckin.media_id,true)}">Checkin to the Next Episode</a></li>
+			</ul>
+		</div>
+		
+		<div class="content-secondary"> 
+			<ul data-role="listview" data-inset="true">
+			%{
+				for (long i = 0L; i <= seasons.size(); i++) {	
+				season = seasons.get(i);
+				if (season != null) {
+				counter = 0;
+			}%
+				<li>Season ${i}
+					<ul data-role="listview" class=" ui-listview ">
+					%{ season.size().times { }%
+						#{if season.size() > counter}
+						%{cnt = counter++; episodes = season.get(cnt);}%
+						
+						<li class="ui-btn ui-btn-icon-right ui-li ui-li-has-alt ui-li-has-thumb ui-btn-up-c">
+							<div class="ui-btn-inner ui-li ui-li-has-alt">
+								<div class="ui-btn-text">
+									<a href="@{Application.showEpisode(episodes.media_id,episodes.season_num,episodes.episode_num,true)}" class="ui-link-inherit" style="padding-left: 155px;">
+										<img src="${episodes.poster_image_url}" class="ui-li-thumb" style="max-width: 145px; max-height: 80px;">
+										<h3 class="ui-li-heading">${episodes.title}</h3>
+										<p class="ui-li-desc">${episodes.label} - ${episodes.aired_date.format('dd.MM.yyyy','de')}</p>
+										<span class="ui-li-count ui-btn-up-c ui-btn-corner-all">#{if episodes.checkins == null}0#{/if}#{else}${episodes.checkins}#{/else}</span>
+									</a>
+									<a href="@{Application.checkinEpisode(episodes.media_id,episodes.season_num,episodes.episode_num,true)}" data-rel="dialog" data-transition="slideup" title="Checkin to this Episode" class="ui-li-link-alt ui-btn ui-btn-up-c">
+										<span class="ui-btn-inner">
+											<span class="ui-btn-text"></span>
+											<span title="" data-theme="d" class="ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-d">
+												<span class="ui-btn-inner ui-btn-corner-all">
+													<span class="ui-btn-text"></span>
+													<span class="ui-icon ui-icon-gear ui-icon-shadow"></span>
+												</span>
+											</span>
+										</span>
+									</a>
+								</div>
+								
+							</div>
+						</li>
+						#{/if}
+					%{ } }%	
+					</ul>
+				</li> 
+			%{ }} }%	
+			</ul>
+		</div>
+	</div>
+
+	<div data-role="footer" class="footer-docs" data-theme="c"> 
+		<p>&copy; 2011 The Hildrim Project</p> 
+	</div>	
+</div>
+
+

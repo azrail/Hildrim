@@ -4,9 +4,12 @@ import helpers.MisoCheckinPojo;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import org.joda.time.DateTime;
@@ -345,6 +348,9 @@ public class MisoCheckin extends Model {
 		}
 		return sl;
 	}
+	
+	
+	
 
 	/**
 	 * get the SeriesDetails

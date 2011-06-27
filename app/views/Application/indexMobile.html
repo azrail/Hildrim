@@ -1,0 +1,20 @@
+#{extends 'mainMobile.html' /}
+#{set title:'Home' /}
+
+
+<div data-role="page" id="jqm-home" class="type-home"> 
+	<div data-role="content"> 
+		<div class="content-secondary"> 			
+			<ul data-role="listview" data-inset="true" data-theme="c" data-dividertheme="f"> 
+				<li data-role="list-divider">Watched Series</li> 
+				#{list lastSeriesEpisodes}
+				<li><a href="@{Application.showSeries(_.media_id,false,true)}">${_.media_title}</a></li>
+				#{/list}
+			</ul> 
+		</div>
+	</div>
+
+	<div data-role="footer" class="footer-docs" data-theme="c"> 
+			<p>&copy; 2011 The Hildrim Project</p> 
+	</div>	
+</div> 

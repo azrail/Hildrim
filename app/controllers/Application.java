@@ -2,10 +2,16 @@ package controllers;
 
 import helpers.MisoApi;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
+import javax.persistence.Query;
 
 import models.MisoCheckin;
 import models.MisoEpisode;
@@ -20,9 +26,9 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.google.gson.Gson;
-
 import play.Logger;
+import play.db.DB;
+import play.db.jpa.JPA;
 import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
@@ -42,7 +48,7 @@ public class Application extends Controller {
 		}
 	}
 
-	public static void index() {
+	public static void index(Boolean mobile) {
 		User user = getUser();
 		isUserInitalized(user);
 
@@ -51,71 +57,146 @@ public class Application extends Controller {
 		for (Entry<String, MisoCheckin> mc : lse.entrySet()) {
 			lastSeriesEpisodes.add(mc.getValue());
 		}
+		if (isMobile(mobile)) {
+			render("Application/indexMobile.html", user, lastSeriesEpisodes);
+		}
 		render(user, lastSeriesEpisodes);
 	}
 
-	public static void showSeries(Long media_id,Boolean error) {
+	private static boolean isMobile(Boolean mobile) {
+		if (mobile == null) {
+			return false;
+		}
+		return mobile;
+	}
+
+	public static void showSeries(Long media_id, Boolean error, Boolean mobile) {
 		User user = getUser();
 		isUserInitalized(user);
 		List<MisoCheckin> seriesEpisodes = MisoCheckin.findSeriesEpisodes(user, media_id);
 
 		MisoSeries misoSeries = MisoSeries.getSeriesDetails(media_id, user);
 		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
-		render(user, seriesEpisodes, misoSeries, misoCheckin, error);
+
+		TreeMap<String, MisoCheckin> lse = MisoCheckin.findBaseSeries(user);
+		List<MisoCheckin> lastSeriesEpisodes = new ArrayList();
+		for (Entry<String, MisoCheckin> mc : lse.entrySet()) {
+			lastSeriesEpisodes.add(mc.getValue());
+		}
+
+		TreeSet<MisoEpisode> episodes = new TreeSet<MisoEpisode>();
+		episodes.addAll(misoSeries.episodes);
+
+		HashMap<Long, List<MisoEpisode>> seasons = new HashMap<Long, List<MisoEpisode>>();
+
+		String[] seasons1 = misoSeries.seasons;
+		for (String strSeason : seasons1) {
+			Long season = new Long(strSeason);
+			seasons.put(season, MisoEpisode.findEpisodes(media_id, season));
+		}
+
+		if (isMobile(mobile)) {
+			render("Application/showSeriesMobile.html", user, seriesEpisodes, misoSeries, misoCheckin, error, lastSeriesEpisodes, seasons);
+		}
+		render(user, seriesEpisodes, misoSeries, misoCheckin, error, lastSeriesEpisodes, seasons);
 	}
 
-	public static void checkinNextEpisode(Long media_id) {
+	public static void checkinNextEpisode(Long media_id, Boolean mobile) {
 		User user = getUser();
 		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
 		Long nextEpisode = misoCheckin.episode_num + 1;
 		Long season = misoCheckin.episode_season_num;
 		Logger.debug("Check in to %s (%s) - %s", misoCheckin.media_title, media_id, nextEpisode);
 
-		MisoEpisode me = getEpisodeDetails(media_id, user, nextEpisode, season);
+		MisoEpisode me = MisoEpisode.getEpisodeDetails(media_id, user, nextEpisode, season);
 		Boolean error = false;
-		
+
 		if (me != null) {
 			String checkinBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/checkins.json?media_id=" + media_id + "&season_num=" + me.season_num + "&episode_num=" + me.episode_num, POST);
 			if (checkinBody.contains("That check-in is either a duplicate or invalid")) {
 				Logger.info("Check in failed: %s", checkinBody);
 				error = true;
 			}
-		}
 
-		redirect("/series/" + media_id + "/"+error+"/");
+			if (me.checkins == null) {
+				me.checkins = 1L;
+			} else {
+				me.checkins = me.checkins + 1L;
+			}
+			me.save();
+
+		}
+		if (isMobile(mobile)) {
+			redirect("/series/" + media_id + "/" + error + "/" + mobile + "/");
+		}
+		redirect("/series/" + media_id + "/" + error + "/");
 	}
 
-	/**
-	 * @param media_id
-	 * @param user
-	 * @param episode
-	 * @param season
-	 */
-	public static MisoEpisode getEpisodeDetails(Long media_id, User user, Long episode, Long season) {
+	public static void checkinEpisode(Long media_id, Long season, Long episode, Boolean mobile) {
+		User user = getUser();
+		Logger.debug("Check in to %s S%sE%s", media_id, season, episode);
+		Boolean error = false;
 
-		MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode, season);
-
-		if (misoEpisode == null) {
-			String episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, GET);
-
-			if (episodeBody.contains("Episode not found")) {
-				episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + (season + 1) + "&episode_num=" + 1, GET);
-			}
-
-			if (episodeBody.contains("Episode not found")) {
-				return null;
-			}
-
-			episodeBody = episodeBody.substring(11, episodeBody.length() - 1);
-			misoEpisode = new Gson().fromJson(episodeBody, MisoEpisode.class);
-			misoEpisode.media_id = media_id;
-			misoEpisode.save();
-			return misoEpisode;
-
-		} else {
-			return misoEpisode;
+		String checkinBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/checkins.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, POST);
+		if (checkinBody.contains("That check-in is either a duplicate or invalid")) {
+			Logger.info("Check in failed: %s", checkinBody);
+			error = true;
 		}
 
+		MisoEpisode me = MisoEpisode.getEpisodeDetails(media_id, user, episode, season);
+		if (me != null) {
+			if (me.checkins == null) {
+				me.checkins = 1L;
+			} else {
+				me.checkins = me.checkins + 1L;
+			}
+			me.save();
+		}
+
+		if (isMobile(mobile)) {
+			redirect("/series/" + media_id + "/" + error + "/" + mobile + "/");
+		}
+		redirect("/series/" + media_id + "/" + error + "/");
+	}
+
+	public static void updateCheckinCount() {
+		ResultSet results = DB.executeQuery("select count(*) as checkins, media_id, episode_num, episode_season_num from misocheckin where isMovie = 0 group by media_id, episode_num, episode_season_num");
+		try {
+			while (results.next()) {
+				Long checkins = results.getLong("checkins");
+
+				Long media_id = results.getLong("media_id");
+				Long episode_num = results.getLong("episode_num");
+				Long episode_season_num = results.getLong("episode_season_num");
+
+				MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode_num, episode_season_num);
+				misoEpisode.checkins = checkins;
+				misoEpisode.save();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void showEpisode(Long media_id, Long season, Long episode, Boolean mobile) {
+		User user = getUser();
+		isUserInitalized(user);
+
+		TreeMap<String, MisoCheckin> lse = MisoCheckin.findBaseSeries(user);
+		List<MisoCheckin> lastSeriesEpisodes = new ArrayList();
+		for (Entry<String, MisoCheckin> mc : lse.entrySet()) {
+			lastSeriesEpisodes.add(mc.getValue());
+		}
+
+		MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode, season);
+		MisoSeries misoSeries = MisoSeries.findSeriesData(media_id);
+		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
+
+		if (isMobile(mobile)) {
+			render("Application/showEpisodeMobile.html", user, misoEpisode, misoSeries, misoCheckin, lastSeriesEpisodes);
+		}
+
+		render(user, misoEpisode, misoSeries, misoCheckin, lastSeriesEpisodes);
 	}
 
 	public static boolean isUserInitalized(User user) {
