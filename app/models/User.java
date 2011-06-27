@@ -76,7 +76,13 @@ public class User extends Model {
 	 */
 	public static void updateMisoUserDetails(User user) {
 		DateTimeFormatter fmt =  DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.0");
-		DateTime dtlast = fmt.parseDateTime(user.lastupdate.toString());
+		DateTime dtlast = null;
+		if (user.lastupdate == null) {
+			dtlast = fmt.parseDateTime("1970-01-01 12:00:00.0");
+		} else {
+			dtlast = fmt.parseDateTime(user.lastupdate.toString());
+		}
+		
 		DateTime dtcur = new DateTime();
 	
 		if (user.miso == null || user.lastupdate == null || dtlast.isBefore(dtcur.minusHours(2))) {
