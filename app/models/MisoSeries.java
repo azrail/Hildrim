@@ -93,7 +93,6 @@ public class MisoSeries extends Model {
 
 		if (!mso.episode_count.equals(anzahl)) {
 			System.out.println("Saved Episodes ar not Equals to the Episodes online ("+anzahl+"/"+mso.episode_count+")");
-			
 		}
 		
 	}
