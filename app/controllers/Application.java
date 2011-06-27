@@ -239,7 +239,7 @@ public class Application extends Controller {
 		if (user.accessToken == null) {
 			redirect("/auth");
 		}
-		User.updateMisoUserDetails(user);
+		user = User.updateMisoUserDetails(user);
 		MisoCheckin.updateCheckins(user);
 		return true;
 	}
@@ -301,8 +301,12 @@ public class Application extends Controller {
 	}
 
 	public static OAuthService getConnector() {
+		return getConnector("");
+	}
+	
+	public static OAuthService getConnector(String callback) {
 		if (service == null) {
-			service = new ServiceBuilder().provider(MisoApi.class).apiKey("RLSKKwv083Ucv3WRlfPU").apiSecret("TY6Y9T7sznuFFdGClYM4H6OvgpJlpt0Dz9HZ4Tv4").callback(Router.getFullUrl(request.controller + ".oauthCallback")).build();
+			service = new ServiceBuilder().provider(MisoApi.class).apiKey("RLSKKwv083Ucv3WRlfPU").apiSecret("TY6Y9T7sznuFFdGClYM4H6OvgpJlpt0Dz9HZ4Tv4").callback(Router.getFullUrl(request.controller + ".oauthCallback" + callback)).build();
 		}
 		return service;
 	}

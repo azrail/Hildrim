@@ -1,0 +1,21 @@
+#{extends 'main.html' /}
+	<div class="form">
+		#{form @setPasswordEmail(user?.id) } #{ifErrors}
+		<p class="error">Please correct these errors.</p>
+		#{/ifErrors}
+		<p>
+			#{field 'email'} <label>E-Mail:</label> <input type="text"
+				name="${field.name}" value="${user?.email}"
+				class="${field.errorClass}" /> #{/field}
+		</p>
+		<p>
+			#{field 'password'} <label>Password:</label> <input type="text"
+				name="${field.name}" value="${user?.password}"
+				class="${field.errorClass}" /> #{/field}
+		</p>
+		<p>
+			<input type="submit" value="Publish this post to the blog" />
+		</p>
+
+		#{/form}
+	</div>

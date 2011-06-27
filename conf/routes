@@ -5,8 +5,11 @@
 # Home page
 
 
-GET     /                                       Application.index
-GET     /m/                                     Application.index(mobile:'true')
+GET     /                                       Start.index
+GET     /register/                    			Start.register
+GET     /register/{mobile}/                     Start.register(mobile:'true')
+GET     /u/                                     Application.index
+GET     /m/                                   	Application.index(mobile:'true')
 GET     /series/{media_id}/{error}/{mobile}/  	Application.showSeries
 GET     /series/{media_id}/checkinNextEpisode/{mobile}/  Application.checkinNextEpisode
 GET     /series/{media_id}/season/{season}/episode/{episode}/{mobile}/  Application.showEpisode

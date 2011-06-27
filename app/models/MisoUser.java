@@ -11,7 +11,7 @@ import play.db.jpa.GenericModel;
 @Entity
 public class MisoUser extends GenericModel {
 	@Id
-	public Float					id;
+	public Long					id;
 	public String					full_name;
 	public Boolean					currently_followed;
 	public Integer					follower_count;

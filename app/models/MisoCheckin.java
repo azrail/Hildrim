@@ -134,7 +134,7 @@ public class MisoCheckin extends Model {
 	public static void updateCheckins(User user) {
 
 		if (!hasCheckins()) {
-			String url = CHECKINURL + user.miso.id + "&count=20";
+			String url = CHECKINURL + user.miso.id.toString() + "&count=20";
 			getCheckinBody(user, url);
 
 			while (getOlderCheckins(user)) {
@@ -158,7 +158,7 @@ public class MisoCheckin extends Model {
 
 		Long checkinid = findLast(user).checkin_id;
 
-		String url = CHECKINURL + user.miso.id + "&since_id=" + checkinid + "&count=20";
+		String url = CHECKINURL + user.miso.id.toString() + "&since_id=" + checkinid + "&count=20";
 		String[] checkins = getCheckinBody(user, url);
 
 		if (checkins.length == 1) {
@@ -178,7 +178,7 @@ public class MisoCheckin extends Model {
 	private static boolean getOlderCheckins(User user) {
 
 		Long checkinid = findFirst(user).checkin_id;
-		String url = CHECKINURL + user.miso.id + "&max_id=" + checkinid + "&count=20";
+		String url = CHECKINURL + user.miso.id.toString() + "&max_id=" + checkinid + "&count=20";
 		String[] checkins = getCheckinBody(user, url);
 
 		if (checkins.length == 1) {
