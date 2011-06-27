@@ -118,7 +118,7 @@ public class MisoSeries extends Model {
 		TreeSet<MisoEpisode> rsme = new TreeSet<MisoEpisode>();
 		Long curSeason = 0L;
 		Long curEpisode = 0L;
-		for (Long i = 1L; i < misoSeries.episode_count; i++) {
+		for (Long i = 0L; i < misoSeries.episode_count + 4; i++) {
 			MisoEpisode me = MisoEpisode.getEpisodeDetails(media_id, user, curEpisode, curSeason);
 			if (me != null) {
 				curSeason = me.season_num;
