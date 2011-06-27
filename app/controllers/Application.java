@@ -11,8 +11,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.persistence.Query;
-
 import models.MisoCheckin;
 import models.MisoEpisode;
 import models.MisoSeries;
@@ -28,11 +26,12 @@ import org.scribe.oauth.OAuthService;
 
 import play.Logger;
 import play.db.DB;
-import play.db.jpa.JPA;
 import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.Router;
 import play.mvc.With;
+
+import com.google.gson.Gson;
 
 @With(Secure.class)
 public class Application extends Controller {
@@ -71,12 +70,14 @@ public class Application extends Controller {
 	}
 
 	public static void showSeries(Long media_id, Boolean error, Boolean mobile) {
+
 		User user = getUser();
 		isUserInitalized(user);
 		List<MisoCheckin> seriesEpisodes = MisoCheckin.findSeriesEpisodes(user, media_id);
 
 		MisoSeries misoSeries = MisoSeries.getSeriesDetails(media_id, user);
 		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
+
 
 		TreeMap<String, MisoCheckin> lse = MisoCheckin.findBaseSeries(user);
 		List<MisoCheckin> lastSeriesEpisodes = new ArrayList();
@@ -197,6 +198,40 @@ public class Application extends Controller {
 		}
 
 		render(user, misoEpisode, misoSeries, misoCheckin, lastSeriesEpisodes);
+
+	}
+
+	/**
+	 * @param media_id
+	 * @param user
+	 * @param episode
+	 * @param season
+	 */
+	public static MisoEpisode getEpisodeDetails(Long media_id, User user, Long episode, Long season) {
+
+		MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode, season);
+
+		if (misoEpisode == null) {
+			String episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, GET);
+
+			if (episodeBody.contains("Episode not found")) {
+				episodeBody = getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + (season + 1) + "&episode_num=" + 1, GET);
+			}
+
+			if (episodeBody.contains("Episode not found")) {
+				return null;
+			}
+
+			episodeBody = episodeBody.substring(11, episodeBody.length() - 1);
+			misoEpisode = new Gson().fromJson(episodeBody, MisoEpisode.class);
+			misoEpisode.media_id = media_id;
+			misoEpisode.save();
+			return misoEpisode;
+
+		} else {
+			return misoEpisode;
+		}
+
 	}
 
 	public static boolean isUserInitalized(User user) {

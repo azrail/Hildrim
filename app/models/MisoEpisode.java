@@ -1,6 +1,7 @@
 package models;
 
 import java.sql.Date;
+
 import java.util.List;
 import java.util.TreeMap;
 
@@ -13,6 +14,12 @@ import com.google.gson.Gson;
 import controllers.Application;
 
 import play.Logger;
+
+
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+
+
 import play.data.validation.MaxSize;
 import play.db.jpa.Model;
 
@@ -23,11 +30,12 @@ import play.db.jpa.Model;
  * 
  */
 @Entity
-public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 
+public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	/**
 	 * The media id for this checkin. 5678
 	 */
+
 	public Long				media_id;
 	/**
 	 * The tile for this episode object The Big One
@@ -36,21 +44,7 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	/**
 	 * The season during which this episode aired 3
 	 */
-	public Long				season_num;
-	/**
-	 * The episode number with respect to the season during which this episode
-	 * aired 12
-	 */
-	public Long				episode_num;
-	/**
-	 * The date the episode originally aired 2010-12-11T00:21:44Z
-	 */
-	public String			aired;
-	/**
-	 * The tvdb id for the given episode 12345
-	 */
-	public Long				tvdb_id;
-	
+	public Long				season_num;	
 	/**
 	 * Checkin Count
 	 */
@@ -60,6 +54,17 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	 * The season & episode label for the given episode S02E12
 	 */
 	public String			label;
+
+	public Long		episode_num;
+	/**
+	 * The date the episode originally aired 2010-12-11T00:21:44Z
+	 */
+	public String	aired;
+	/**
+	 * The tvdb id for the given episode 12345
+	 */
+	public Long		tvdb_id;
+
 	/**
 	 * The poster image for this episode object
 	 * http://gomiso.com/uploads/BAhbCFsHOgZm.png
@@ -76,6 +81,7 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	 */
 	@Lob
 	@MaxSize(10000)
+
 	public String			summary;
 	/**
 	 * Comma-delimited actors related to this media. Christian Bale, Heath

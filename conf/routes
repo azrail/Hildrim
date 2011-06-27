@@ -14,10 +14,12 @@ GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}/{mob
 GET     /auth                                   Application.authenticate
 GET     /series/{media_id}/                     Application.showSeries
 GET     /series/{media_id}/checkinNextEpisode/  Application.checkinNextEpisode
+
 GET     /series/{media_id}/season/{season}/episode/{episode}/  Application.showEpisode
 GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}/  Application.checkinEpisode
 GET     /series/{media_id}/{error}/  			Application.showSeries
 GET     /updatecc/  			Application.updateCheckinCount
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
