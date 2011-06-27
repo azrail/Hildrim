@@ -69,6 +69,12 @@ public class Application extends Controller {
 		return mobile;
 	}
 
+	public static void updateSeries(Long media_id) {
+		User user = getUser();
+		MisoSeries.checkSeriesUpdates(media_id, user);
+		System.out.println("checked");
+	}
+	
 	public static void showSeries(Long media_id, Boolean error, Boolean mobile) {
 
 		User user = getUser();
