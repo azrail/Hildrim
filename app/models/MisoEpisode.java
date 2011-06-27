@@ -113,10 +113,22 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 		if (misoEpisode == null) {
 			String episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Application.GET);
 			if (episodeBody.contains("Episode not found")) {
+				
+				misoEpisode = findEpisode(media_id, episode + 1L, season);
+				
+				if (misoEpisode != null) {
+					return misoEpisode;
+				}
+				
 				season = season + 1L;
 				episode = 1L;
-				if (findEpisode(media_id, episode, season) == null) {
+
+				misoEpisode = findEpisode(media_id, episode, season);
+				
+				if (misoEpisode == null) {
 					episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Application.GET);
+				} else {
+					return misoEpisode;
 				}
 			}
 
