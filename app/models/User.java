@@ -86,21 +86,8 @@ public class User extends Model {
 
 		DateTime dtcur = new DateTime();
 
-		if (user.miso == null || user.lastupdate == null || dtlast.isBefore(dtcur.minusHours(2))) {
-			Token accessToken = new Token(user.accessToken, user.accessTokenSecret);
-			OAuthRequest request = new OAuthRequest(Verb.GET, "https://gomiso.com/api/oauth/v1/users/show.json");
-			Application.getConnector().signRequest(accessToken, request);
-			Response response = request.send();
-
-			String userdetails = response.getBody().substring(8);
-
-			System.out.println(userdetails);
-
-			userdetails = userdetails.substring(0, userdetails.length() - 1);
-
-			System.out.println(userdetails);
-
-			MisoUser m = new Gson().fromJson(userdetails, MisoUser.class);
+		if (user.miso == null || user.lastupdate == null) {
+			MisoUser m = getUserDetailsOnline(user);
 
 			User u = findbyMisoUserID(m.id);
 
@@ -163,11 +150,49 @@ public class User extends Model {
 				user.miso.save();
 				user.save();
 			}
-
 		}
-		
+
+		if (dtlast.isBefore(dtcur.minusHours(2))) {
+			MisoUser m = getUserDetailsOnline(user);
+
+			user.miso.full_name = m.full_name;
+			user.miso.currently_followed = m.currently_followed;
+			user.miso.follower_count = m.follower_count;
+			user.miso.tagline = m.tagline;
+			user.miso.facebook_enabled = m.facebook_enabled;
+			user.miso.following_count = m.following_count;
+			user.miso.badge_count = m.badge_count;
+			user.miso.twitter_enabled = m.twitter_enabled;
+			user.miso.checkin_count = m.checkin_count;
+			user.miso.username = m.username;
+			user.miso.total_points = m.total_points;
+			user.miso.url = m.url;
+			user.miso.profile_image_url = m.profile_image_url;
+			user.miso.facebook = m.facebook;
+			user.miso.twitter = m.twitter;
+			user.miso.save();
+			user.save();
+		}
+
 		return user;
-		
+
+	}
+
+	/**
+	 * @param user
+	 * @return
+	 */
+	public static MisoUser getUserDetailsOnline(User user) {
+		Token accessToken = new Token(user.accessToken, user.accessTokenSecret);
+		OAuthRequest request = new OAuthRequest(Verb.GET, "https://gomiso.com/api/oauth/v1/users/show.json");
+		Application.getConnector().signRequest(accessToken, request);
+		Response response = request.send();
+
+		String userdetails = response.getBody().substring(8);
+
+		userdetails = userdetails.substring(0, userdetails.length() - 1);
+		MisoUser m = new Gson().fromJson(userdetails, MisoUser.class);
+		return m;
 	}
 
 }
