@@ -21,7 +21,7 @@
 				<li>Last Episode: ${misoCheckin.episode_label}</li>
 				<li>Checkin on: ${latest.aired_date.format('dd.MM.yyyy','de')}</li>
 				<li><a class="readMore" href="@{Application.checkinNextEpisode(misoCheckin.media_id,true)}">Checkin to the Next Episode</a></li>
-				<li><a class="readMore" href="@{Application.updateSeries(misoCheckin.media_id)}">Update Series Data</a></li>
+				<li><a class="readMore" href="@{Application.updateSeries(misoCheckin.media_id,true)}">Update Series Data</a></li>
 			</ul>
 		</div>
 		

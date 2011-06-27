@@ -69,12 +69,12 @@ public class Application extends Controller {
 		return mobile;
 	}
 
-	public static void updateSeries(Long media_id) {
+	public static void updateSeries(Long media_id, Boolean mobile) {
 		User user = getUser();
 		MisoSeries.checkSeriesUpdates(media_id, user);
-		System.out.println("checked");
+		redirect("/series/" + media_id + "/" + false + "/" + mobile + "/ ");
 	}
-	
+
 	public static void showSeries(Long media_id, Boolean error, Boolean mobile) {
 
 		User user = getUser();
@@ -83,7 +83,6 @@ public class Application extends Controller {
 
 		MisoSeries misoSeries = MisoSeries.getSeriesDetails(media_id, user);
 		MisoCheckin misoCheckin = MisoCheckin.findSeriesEpisode(user, media_id);
-
 
 		TreeMap<String, MisoCheckin> lse = MisoCheckin.findBaseSeries(user);
 		List<MisoCheckin> lastSeriesEpisodes = new ArrayList();
@@ -309,7 +308,7 @@ public class Application extends Controller {
 	public static OAuthService getConnector() {
 		return getConnector("");
 	}
-	
+
 	public static OAuthService getConnector(String callback) {
 		if (service == null) {
 			service = new ServiceBuilder().provider(MisoApi.class).apiKey("RLSKKwv083Ucv3WRlfPU").apiSecret("TY6Y9T7sznuFFdGClYM4H6OvgpJlpt0Dz9HZ4Tv4").callback(Router.getFullUrl(request.controller + ".oauthCallback" + callback)).build();

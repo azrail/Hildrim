@@ -10,7 +10,7 @@ GET     /register/                    			Start.register
 GET     /register/{mobile}/                     Start.register(mobile:'true')
 GET     /u/                                     Application.index
 GET     /m/                                   	Application.index(mobile:'true')
-GET     /series/{media_id}/update/  			Application.updateSeries
+GET     /series/{media_id}/update/{mobile}/		Application.updateSeries
 
 GET     /series/{media_id}/{error}/{mobile}/  	Application.showSeries
 GET     /series/{media_id}/checkinNextEpisode/{mobile}/  Application.checkinNextEpisode
