@@ -1,11 +1,11 @@
 #{extends 'mainMobile.html' /}
-#{set title:'Wellcome back ' + user.username + '!'/}
+#{set title:'Welcome back ' + user.username + '!'/}
 
 <div data-role="page">
 
 	<div data-role="header">
 		<a href="@{Application.desktop()}" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
-		<h1>Wellcome back ${user.username}!</h1> 
+		<h1>Welcome back ${user.username}!</h1> 
 		<a href="@{Application.desktop()}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a> 
 	</div>
 
