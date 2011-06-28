@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+
+import models.miso.MisoCheckin;
+import models.miso.MisoUser;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -18,13 +20,14 @@ import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
 
-import com.google.gson.Gson;
-
-import controllers.Application;
-
+import play.Logger;
 import play.data.validation.Email;
 import play.data.validation.Required;
 import play.db.jpa.Model;
+
+import com.google.gson.Gson;
+
+import controllers.Application;
 
 @Entity
 public class User extends Model {
@@ -76,6 +79,7 @@ public class User extends Model {
 	 * @param user
 	 */
 	public static User updateMisoUserDetails(User user) {
+		Logger.debug("Updateing Userdetails for %s...", user.username);
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.0");
 		DateTime dtlast = null;
 		if (user.lastupdate == null) {
@@ -173,6 +177,8 @@ public class User extends Model {
 			user.miso.save();
 			user.save();
 		}
+
+		Logger.debug("User %s Updated", user.username);
 
 		return user;
 

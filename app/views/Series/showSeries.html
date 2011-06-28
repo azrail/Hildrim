@@ -16,7 +16,7 @@
 		%{ perColumn.times { }%
 			#{if lastSeriesEpisodes.size() > counter}
 			%{ cnt = counter++ }%
-			<li><a href="@{Application.showSeries(lastSeriesEpisodes.get(cnt).media_id)}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
+			<li><a href="@{Series.showSeries(lastSeriesEpisodes.get(cnt).media_id)}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
 			#{/if}
 		%{ } }%
 	</ul>
@@ -42,7 +42,7 @@
 		<span class="user">${misoCheckin.user_username}</span>
 		<span class="date">${latest.aired_date.format('dd.MM.yyyy','de')}</span>
 		<span class="comments"><a href="http://gomiso.com/m/${misoCheckin.media_id}/seasons/${latest.season_num}/episodes/${latest.episode_num}" title="See on Miso">${misoCheckin.episode_label}</a></span>
-		<a class="readMore" href="@{Application.checkinNextEpisode(misoCheckin.media_id)}"><h2><cufon class="cufon cufon-canvas" alt="Checkin to the Next Episode" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
+		<a class="readMore" href="@{Series.checkinNextEpisode(misoCheckin.media_id)}"><h2><cufon class="cufon cufon-canvas" alt="Checkin to the Next Episode" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
 	</div>
 </div>
 
@@ -61,7 +61,7 @@
 		%{ perColumn.times { }%
 			#{if seriesEpisodes.size() > counter}
 			%{ cnt = counter++; }%
-			<li><a href="@{Application.showEpisode(seriesEpisodes.get(cnt).media_id,seriesEpisodes.get(cnt).episode_season_num,seriesEpisodes.get(cnt).episode_num)}" title="${seriesEpisodes.get(cnt).media_title}">${seriesEpisodes.get(cnt).episode_label} - ${seriesEpisodes.get(cnt).created_at.format('dd.MM.yyyy','de')}</a></li>
+			<li><a href="@{Series.showEpisode(seriesEpisodes.get(cnt).media_id,seriesEpisodes.get(cnt).episode_season_num,seriesEpisodes.get(cnt).episode_num)}" title="${seriesEpisodes.get(cnt).media_title}">${seriesEpisodes.get(cnt).episode_label} - ${seriesEpisodes.get(cnt).created_at.format('dd.MM.yyyy','de')}</a></li>
 			#{/if}
 		%{ } }%
 	</ul>
@@ -95,7 +95,7 @@
 	%{ perColumn.times { }%
 			#{if season.size() > counter}
 			%{cnt = counter++; episodes = season.get(cnt);}%
-			<li><a href="@{Application.showEpisode(episodes.media_id,episodes.season_num,episodes.episode_num)}" title="${episodes.title}">${episodes.label} - ${episodes.aired_date.format('dd.MM.yyyy','de')}</a></li>
+			<li><a href="@{Series.showEpisode(episodes.media_id,episodes.season_num,episodes.episode_num)}" title="${episodes.title}">${episodes.label} - ${episodes.aired_date.format('dd.MM.yyyy','de')}</a></li>
 			#{/if}
 	%{ } }%	
 	</ul>

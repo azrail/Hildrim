@@ -1,4 +1,4 @@
-package models;
+package models.miso;
 
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -12,6 +12,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 
+import models.User;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -23,6 +25,7 @@ import play.db.jpa.Model;
 import com.google.gson.Gson;
 
 import controllers.Application;
+import controllers.Series;
 
 /**
  * Details of an specified Series
@@ -146,7 +149,7 @@ public class MisoSeries extends Model {
 	 * @return
 	 */
 	public static MisoSeries getOnlineSeries(Long media_id, User user) {
-		String strEpisodes = Application.getJsonBodyforUrl(user, EPISODESURL + media_id, Application.GET);
+		String strEpisodes = Application.getJsonBodyforUrl(user, EPISODESURL + media_id, Series.GET);
 		MisoSeries misoSeries = new Gson().fromJson(strEpisodes, MisoSeries.class);
 		misoSeries.media_id = media_id;
 		return misoSeries;

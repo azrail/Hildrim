@@ -20,10 +20,10 @@ public class Security extends Secure.Security {
 	}
 
 	static void onDisconnected() {
-		Application.index(null);
+		Series.index();
 	}
 
 	static void onAuthenticated() {
-		Application.index(null);
+		Series.index();
 	}
 }

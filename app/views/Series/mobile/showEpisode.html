@@ -4,9 +4,9 @@
 <div data-role="page">
 
 	<div data-role="header">
-		<a href="/m/" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
+		<a href="@{Application.desktop()}" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
 		<h1>${misoEpisode.title} - ${misoEpisode.label}</h1> 
-		<a href="@{Application.showSeries(misoEpisode.media_id,false,true)}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a> 
+		<a href="@{Series.showSeries(misoEpisode.media_id)}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a> 
 	</div>
 
 	<div data-role="content"> 
@@ -16,8 +16,8 @@
 			<p>${misoEpisode.cast}</p>
 			<ul data-role="listview" data-inset="true">
 				<li>Last Episode: ${misoEpisode.label}</li>
-				<li>Checkin on: ${misoEpisode.aired_date.format('dd.MM.yyyy','de')}</li>
-				<li><a class="readMore" href="@{Application.checkinEpisode(misoEpisode.media_id,misoEpisode.season_num,misoEpisode.episode_num)}">Checkin to this Episode</a></li>
+				<li>Checkin on: ${misoEpisode.created_at.format('dd.MM.yyyy','de')}</li>
+				<li><a class="readMore" href="@{Series.checkinEpisode(misoEpisode.media_id,misoEpisode.season_num,misoEpisode.episode_num)}">Checkin to this Episode</a></li>
 			</ul>
 		</div>
 	</div>

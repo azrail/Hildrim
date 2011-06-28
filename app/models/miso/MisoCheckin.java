@@ -1,7 +1,9 @@
-package models;
+package models.miso;
 
-import helpers.MisoCheckinPojo;
+import helpers.miso.MisoCheckinPojo;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +14,9 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import models.User;
+
+import org.apache.commons.collections.list.TreeList;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -21,6 +26,7 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 
 import play.Logger;
+import play.db.DB;
 import play.db.jpa.Model;
 
 import com.google.gson.Gson;
@@ -236,10 +242,10 @@ public class MisoCheckin extends Model {
 				MisoCheckin mc = find(misoCheckin.id, user);
 
 				if (mc == null) {
-					Logger.debug("%s found...",checkins.length);
+					Logger.debug("%s found...", checkins.length);
 					mc = new MisoCheckin();
 					mc.checkin_id = misoCheckin.id;
-					
+
 					DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
 					DateTime dt = fmt.parseDateTime(misoCheckin.created_at.replace("Z", ".000Z"));
 
@@ -301,7 +307,7 @@ public class MisoCheckin extends Model {
 	}
 
 	/**
-	 * Try to get the newest Checkin for the given user
+	 * Try to get the oldest Checkin for the given user
 	 * 
 	 * @param user
 	 *            The Authenticated User
@@ -312,7 +318,7 @@ public class MisoCheckin extends Model {
 	}
 
 	/**
-	 * Try to get the oldest Checkin for the given user
+	 * Try to get the newest Checkin for the given user
 	 * 
 	 * @param user
 	 *            The Authenticated User
@@ -320,6 +326,48 @@ public class MisoCheckin extends Model {
 	 */
 	public static MisoCheckin findLast(User user) {
 		return MisoCheckin.find("user_id = ?  order by checkin_id desc", user.id).first();
+	}
+
+	/**
+	 * Try to get the newest Checkin for the given user
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return Object MisoCheckin or Null if nothing found
+	 */
+	public static List<MisoCheckin> findLastSeries(User user, int count) {
+		// Logger.debug("findLastSeries...");
+		List<MisoCheckin> misocheckin = new TreeList();
+		ResultSet results = DB.executeQuery("select * from (select max(created_at) as last_checkin, media_id, media_title from MisoCheckin where isMovie = 0 group by media_id, media_title order by created_at desc) msc order by last_checkin desc limit " + count);
+		try {
+			while (results.next()) {
+				misocheckin.add(MisoCheckin.findSeriesEpisode(user, results.getLong("media_id")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return misocheckin;
+	}
+
+	/**
+	 * Try to get the newest Checkin for the given user
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return Object MisoCheckin or Null if nothing found
+	 */
+	public static List<MisoCheckin> findLastMovies(User user, int count) {
+		// Logger.debug("findLastMovies...");
+		List<MisoCheckin> misocheckin = new TreeList();
+		ResultSet results = DB.executeQuery("select * from (select max(created_at) as last_checkin, media_id, media_title from MisoCheckin where isMovie = 1 group by media_id, media_title order by created_at desc) msc order by last_checkin desc limit " + count);
+		try {
+			while (results.next()) {
+				misocheckin.add(MisoCheckin.findSeriesEpisode(user, results.getLong("media_id")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return misocheckin;
 	}
 
 	/**
@@ -344,27 +392,28 @@ public class MisoCheckin extends Model {
 		TreeMap<String, MisoCheckin> sl = new TreeMap<String, MisoCheckin>();
 		List<MisoCheckin> mc = MisoCheckin.find("user_id = ? and isMovie = false order by media_title, episode_label", user.id).fetch();
 		for (MisoCheckin misoCheckin : mc) {
-			sl.put(misoCheckin.media_title,misoCheckin);
+			sl.put(misoCheckin.media_title, misoCheckin);
 		}
 		return sl;
 	}
-	
-	
-	
 
 	/**
 	 * get the SeriesDetails
-	 * @param user The Authenticated User
+	 * 
+	 * @param user
+	 *            The Authenticated User
 	 * @param media_id
 	 * @return Object MisoCheckin or Null if nothing found
 	 */
 	public static MisoCheckin findSeriesEpisode(User user, Long media_id) {
 		return MisoCheckin.find("user_id = ? and media_id = ? order by media_title, episode_label desc", user.id, media_id).first();
 	}
-	
+
 	/**
 	 * Get all Episodes from an Series
-	 * @param user The Authenticated User
+	 * 
+	 * @param user
+	 *            The Authenticated User
 	 * @param media_id
 	 * @return Object MisoCheckin or Null if nothing found
 	 */

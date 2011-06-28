@@ -1,0 +1,48 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+<div id="siteWrapper" class="container_16"> 
+<div id="main"><div id="top"></div>
+
+<div style="position:absolute; top:190px; left:20px;"><a href="@{Application.setMobileMode("Series.index")}"><img src="/public/images/mobile.png" alt="Login" title="Login" style="float:left;" />go Mobile!</a></div>
+
+Mobile: ${mobile}
+
+<div id="header" class="grid_16">
+<ul id="mainNav"> 
+%{
+	perColumn = Math.round(lastSeriesEpisodes.size()/4);
+	counter = 0;
+	4.times {
+}%
+	<li class="menu grid_2">
+	<ul class="subMenu">
+		%{ perColumn.times { }%
+			#{if lastSeriesEpisodes.size() > counter}
+			%{ cnt = counter++ }%
+			<li><a href="#${lastSeriesEpisodes.get(cnt).media_id}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
+			#{/if}
+		%{ } }%
+	</ul>
+	</li> 
+%{
+	}
+}%
+	</ul>			
+</div>
+
+<div id="mainContent" class="grid_9">
+#{list lastSeriesEpisodes}
+		<div class="post postSml clearfix">
+		<a href="@{Series.showSeries(_.media_id)}" id="${_.media_id}" title="${_.media_title}"><h1>${_.media_title}</h1></a>
+		<h2><cufon class="cufon cufon-canvas" alt="${_.episode_title}" style="width: 34px; height: 16px; "><canvas width="51" height="24" style="width: 51px; height: 24px; top: 0px; left: -5px; "></canvas></cufon></h2>
+		<a href="@{Series.showSeries(_.media_id)}"><img src="${_.media_poster_url}" alt="${_.media_title}"></a>
+		<p class="summary">Morbi interdum mollis sapien. Phasellus lacinia, magna a ullamcorper laoreet, lectus arcu pulvina ut risus, vitae facilisis libero dolor a purus. Sed vel lacus. Mauris nibh felis, adipiscing varius, apisin, lacinia vel, tellus ac urna. Etiam pellentesque mauris ut lectus. Nunc tellus ante, iseget. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi.</p>
+		<span class="user">${_.user_username}</span>
+		<span class="date">${_.created_at.format('dd MMMM yyyy','de')}</span>
+		<span class="comments">${_.episode_label}</span>
+		<a class="readMore" href="#top"><h2><cufon class="cufon cufon-canvas" alt="Top" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
+	</div>
+#{/list}
+</div>
+</div>
+</div>

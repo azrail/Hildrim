@@ -3,27 +3,23 @@
 # ~~~~
 
 # Home page
+GET     /                                       Application.index
+GET     /desktop                    			Application.desktop
+GET     /register                    			Application.register
+GET		/switch2mobile							Application.setMobileMode
+GET		/switch2desktop							Application.setDesktopMode
 
+# Series
+GET     /series                                     							Series.index
+GET     /series/{media_id}                    									Series.showSeries
+GET     /series/{media_id}/update												Series.updateSeries
+GET     /series/{media_id}/checkinNextEpisode  									Series.checkinNextEpisode
+GET     /series/{media_id}/season/{season}/episode/{episode}  					Series.showEpisode
+GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}  	Series.checkinEpisode
 
-GET     /                                       Start.index
-GET     /register/                    			Start.register
-GET     /register/{mobile}/                     Start.register(mobile:'true')
-GET     /u/                                     Application.index
-GET     /m/                                   	Application.index(mobile:'true')
-GET     /series/{media_id}/update/{mobile}/		Application.updateSeries
-GET     /series/{media_id}/checkinNextEpisode/{mobile}/  Application.checkinNextEpisode
-GET     /series/{media_id}/{error}/{mobile}/  	Application.showSeries
-
-GET     /series/{media_id}/season/{season}/episode/{episode}/{mobile}/  Application.showEpisode
-GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}/{mobile}/ Application.checkinEpisode
-GET     /auth                                   Application.authenticate
-GET     /series/{media_id}/                     Application.showSeries
-GET     /series/{media_id}/checkinNextEpisode/  Application.checkinNextEpisode
-
-GET     /series/{media_id}/season/{season}/episode/{episode}/  Application.showEpisode
-GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}/  Application.checkinEpisode
-GET     /series/{media_id}/{error}/  			Application.showSeries
-GET     /updatecc/  			Application.updateCheckinCount
+# Services
+GET		/service/update/miso													Service.updateMiso
+GET     /service/update/checkincount 											Service.updateCheckinCount
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

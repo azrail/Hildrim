@@ -1,4 +1,4 @@
-package models;
+package models.miso;
 
 import java.sql.Timestamp;
 import java.util.HashMap;

@@ -16,7 +16,7 @@
 		%{ perColumn.times { }%
 			#{if lastSeriesEpisodes.size() > counter}
 			%{ cnt = counter++ }%
-			<li><a href="@{Application.showSeries(lastSeriesEpisodes.get(cnt).media_id)}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
+			<li><a href="@{Series.showSeries(lastSeriesEpisodes.get(cnt).media_id)}" title="${lastSeriesEpisodes.get(cnt).media_title}">${lastSeriesEpisodes.get(cnt).media_title}</a></li>
 			#{/if}
 		%{ } }%
 	</ul>
@@ -38,7 +38,7 @@
 		<span class="user">${misoCheckin.user_username}</span>
 		<span class="date">${misoEpisode.aired_date.format('dd.MM.yyyy','de')}</span>
 		<span class="comments"><a href="http://gomiso.com/m/${misoEpisode.media_id}/seasons/${misoEpisode.season_num}/episodes/${misoEpisode.episode_num}" title="See on Miso">${misoEpisode.label}</a></span>
-		<a class="readMore" href="@{Application.checkinEpisode(misoEpisode.media_id,misoEpisode.season_num,misoEpisode.episode_num)}"><h2><cufon class="cufon cufon-canvas" alt="Checkin to this Episode" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
+		<a class="readMore" href="@{Series.checkinEpisode(misoEpisode.media_id,misoEpisode.season_num,misoEpisode.episode_num)}"><h2><cufon class="cufon cufon-canvas" alt="Checkin to this Episode" style="width: 36px; height: 16px; "><canvas width="53" height="24" style="width: 53px; height: 24px; top: 0px; left: -5px; "></canvas><cufontext></h2></a>
 	</div>
 </div>
 

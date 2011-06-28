@@ -1,0 +1,57 @@
+#{extends 'mainMobile.html' /}
+#{set title:'Wellcome back ' + user.username + '!'/}
+
+<div data-role="page">
+
+	<div data-role="header">
+		<a href="@{Application.desktop()}" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
+		<h1>Wellcome back ${user.username}!</h1> 
+		<a href="@{Application.desktop()}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a> 
+	</div>
+
+	<div data-role="content"> 
+		<div class="content-primary">
+			<ul data-role="listview" data-inset="true">
+				<li data-role="list-divider">Miso Details</li> 
+				<li>Checkin: ${misocheckin.media_title} #{if !misocheckin.isMovie} - ${misocheckin.episode_title} (${misocheckin.episode_label})#{/if}</li>
+				<li>Last Checkin: ${misocheckin.created_at.format('dd.MM.yyyy - HH:mm','de')}</li>
+				<li>Twitter: #{if twitter_enabled}On#{/if}#{else}Off#{/else}, Facebook: #{if facebook_enabled}On#{/if}#{else}Off#{/else}</li>
+				<li>
+					<div class="ui-btn-text">Bages: ${user.miso.badge_count}, Checkins: ${user.miso.checkin_count}, Points: ${user.miso.total_points}
+						<a href="@{Service.updateMiso()}" title="Update Miso Details & Checkins" class="ui-li-link-alt ui-btn ui-btn-up-c">
+							<span class="ui-btn-inner">
+								<span class="ui-btn-text"></span>
+								<span title="" data-theme="d" class="ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-d">
+									<span class="ui-btn-inner ui-btn-corner-all">
+										<span class="ui-btn-text"></span>
+										<span class="ui-icon ui-icon-gear ui-icon-shadow"></span>
+									</span>
+								</span>
+							</span>
+						</a>
+					</div>
+				</li>
+				<li><a class="readMore" href="@{Series.index()}">Watch/Checkin Series</a></li>
+				<li><a class="readMore" href="#commingsoon">Watch/Checkin Movies (Comming Soon!)</a></li>
+			</ul>
+
+			<ul data-role="listview" data-inset="true">
+				<li data-role="list-divider">Last Series</li> 
+				#{list misocheckinlastseries}
+				<li><a href="@{Series.showSeries(_.media_id)}">${_.media_title}</a></li>
+				#{/list}
+			</ul>
+			
+			<ul data-role="listview" data-inset="true">
+				<li data-role="list-divider">Last Movies (Comming Soon!)</li> 
+				#{list misocheckinlastmovies}
+				<li><a href="#commingsoon(${_.media_id})">${_.media_title}</a></li>
+				#{/list}
+			</ul>
+		</div>
+	</div>
+
+	<div data-role="footer" class="footer-docs" data-theme="c"> 
+		<p>&copy; 2011 The Hildrim Project</p> 
+	</div>	
+</div>

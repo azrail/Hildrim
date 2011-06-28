@@ -1,4 +1,4 @@
-package models;
+package models.miso;
 
 import java.sql.Date;
 
@@ -12,12 +12,15 @@ import javax.persistence.OneToOne;
 import com.google.gson.Gson;
 
 import controllers.Application;
+import controllers.Series;
 
 import play.Logger;
 
 
 import javax.persistence.Entity;
 import javax.persistence.Lob;
+
+import models.User;
 
 
 import play.data.validation.MaxSize;
@@ -111,7 +114,7 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 		MisoEpisode misoEpisode = findEpisode(media_id, episode, season);
 
 		if (misoEpisode == null) {
-			String episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Application.GET);
+			String episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Series.GET);
 			if (episodeBody.contains("Episode not found")) {
 				
 				misoEpisode = findEpisode(media_id, episode + 1L, season);
@@ -126,7 +129,7 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 				misoEpisode = findEpisode(media_id, episode, season);
 				
 				if (misoEpisode == null) {
-					episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Application.GET);
+					episodeBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/episodes/show.json?media_id=" + media_id + "&season_num=" + season + "&episode_num=" + episode, Series.GET);
 				} else {
 					return misoEpisode;
 				}
