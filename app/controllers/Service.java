@@ -64,8 +64,11 @@ public class Service extends Controller {
 				Long episode_season_num = results.getLong("episode_season_num");
 
 				MisoEpisode misoEpisode = MisoEpisode.findEpisode(media_id, episode_num, episode_season_num);
-				misoEpisode.checkins = checkins;
-				misoEpisode.save();
+				if (misoEpisode != null) {
+					misoEpisode.checkins = checkins;
+					misoEpisode.save();
+				}
+				
 				cnt++;
 			}
 		} catch (SQLException e) {
