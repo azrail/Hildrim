@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import models.User;
+import models.miso.MisoCheckin;
 import models.miso.MisoEpisode;
 
 import org.junit.Before;
@@ -44,6 +45,7 @@ public class Service extends Controller {
 	public static void updateMiso() {
 		User user = getUser();
 		User.updateMisoUserDetails(user);
+		MisoCheckin.updateCheckins(user);
 		Long cnt = Service.updateCheckinCount();
 		Logger.debug("Updated %d Checkins", cnt);
 		Logger.debug("Redirecting to %s", Router.getFullUrl("Application.desktop"));
