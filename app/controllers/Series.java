@@ -100,13 +100,11 @@ public class Series extends Controller {
 		Logger.debug("Check in to %s (%s) - %s", misoCheckin.media_title, media_id, nextEpisode);
 
 		MisoEpisode me = MisoEpisode.getEpisodeDetails(media_id, user, nextEpisode, season);
-		Boolean error = false;
 
 		if (me != null) {
 			String checkinBody = Application.getJsonBodyforUrl(user, "http://gomiso.com/api/oauth/v1/checkins.json?media_id=" + media_id + "&season_num=" + me.season_num + "&episode_num=" + me.episode_num, POST);
 			if (checkinBody.contains("That check-in is either a duplicate or invalid")) {
 				Logger.info("Check in failed: %s", checkinBody);
-				error = true;
 			}
 
 			if (me.checkins == null) {
@@ -115,7 +113,7 @@ public class Series extends Controller {
 				me.checkins = me.checkins + 1L;
 			}
 			me.save();
-
+			MisoCheckin.updateCheckins(user);
 		}
 		redirect("/series/" + media_id);
 	}
@@ -137,6 +135,7 @@ public class Series extends Controller {
 				me.checkins = me.checkins + 1L;
 			}
 			me.save();
+			MisoCheckin.updateCheckins(user);
 		}
 		redirect("/series/" + media_id);
 	}
