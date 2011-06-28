@@ -16,7 +16,7 @@
 			<p>${misoEpisode.cast}</p>
 			<ul data-role="listview" data-inset="true">
 				<li>Last Episode: ${misoEpisode.label}</li>
-				<li>Checkin on: ${misoEpisode.created_at.format('dd.MM.yyyy','de')}</li>
+				<li>Aired Date: ${misoEpisode.aired_date.format('dd.MM.yyyy','de')}</li>
 				<li><a class="readMore" href="@{Series.checkinEpisode(misoEpisode.media_id,misoEpisode.season_num,misoEpisode.episode_num)}">Checkin to this Episode</a></li>
 			</ul>
 		</div>
