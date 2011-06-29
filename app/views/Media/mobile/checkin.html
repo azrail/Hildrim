@@ -1,0 +1,34 @@
+#{extends 'mainMobile.html' /}
+#{set title:'Home' /}
+%{
+	misoMedia = misoCheckin.getMisoMedia();
+	misoEpisode = misoCheckin.getMisoEpisode();
+}%
+<div data-role="page">
+
+	<div data-role="header">
+		<a href="@{Application.desktop()}" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a> 
+		<h1>${misoCheckin.media_title}#{if !misoCheckin.isMovie} - ${misoCheckin.episode_title} (${misoCheckin.episode_label})#{/if}</h1> 
+		<a href="@{Series.showSeries(misoCheckin.media_id)}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a> 
+	</div>
+
+	<div data-role="content"> 
+		<div class="content-primary">
+			<p>#{if misoCheckin.isMovie}${misoMedia.summary.nl2br()}#{/if}#{if !misoCheckin.isMovie}${misoEpisode.summary.nl2br()}#{/if}</p>
+			<p><img style="display: block; margin-left: auto; margin-right: auto;float: none;" src="#{if misoCheckin.isMovie}${misoMedia.poster_image_url}#{/if}#{if !misoCheckin.isMovie}${misoEpisode.poster_image_url}#{/if}" alt="${misoCheckin.media_title} - #{if !misoCheckin.isMovie} - ${misoCheckin.episode_title} (${misoCheckin.episode_label})#{/if}"></p>
+			<p>#{if misoCheckin.isMovie}${misoMedia.cast.nl2br()}#{/if}#{if !misoCheckin.isMovie}${misoEpisode.cast.nl2br()}#{/if}</p>
+			<ul data-role="listview" data-inset="true">
+				#{if !misoCheckin.isMovie}<li>Last Episode: ${misoEpisode.label}</li>#{/if}
+				<li>Aired Date: #{if misoCheckin.isMovie}${misoMedia.release_year}#{/if}#{if !misoCheckin.isMovie}${misoEpisode.aired_date.format('dd.MM.yyyy - HH:mm','de')}#{/if}</li>
+				<li><a class="readMore" href="#{if misoCheckin.isMovie}##{/if}#{if !misoCheckin.isMovie}@{Series.checkinEpisode(misoCheckin.media_id,misoEpisode.season_num,misoEpisode.episode_num)}#{/if}">Check in</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div data-role="footer" data-id="footer" data-position="fixed" class="ui-bar"> 
+		<a href="@{Application.desktop()}" data-role="button" data-icon="home">Desktop</a>
+		<a href="@{Application.checkins()}" data-role="button">Chekins</a>
+		<a href="#" data-role="button">Add</a>
+	</div>	
+
+</div>

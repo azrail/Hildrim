@@ -50,12 +50,20 @@ public class Application extends Controller {
 		// TODO: Workaround
 		session.put("mobile", true);
 		User user = getUser();
+		
 		MisoCheckin misocheckin = MisoCheckin.findLast(user);
 		List<MisoCheckin> misocheckinlastseries = MisoCheckin.findLastSeries(user, 4);
 		List<MisoCheckin> misocheckinlastmovies = MisoCheckin.findLastMovies(user, 4);
-		render(getTemplate("desktop.html"), user, misocheckin, misocheckinlastseries, misocheckinlastmovies);
+		render(getTemplate(TEMPLATEPATH,"desktop.html"), user, misocheckin, misocheckinlastseries, misocheckinlastmovies);
 	}
 
+	public static void checkins() {
+		// TODO: Workaround
+		session.put("mobile", true);
+		User user = getUser();
+		render(getTemplate(TEMPLATEPATH,"checkins.html"));
+	}
+	
 	public static void register(Boolean mobile) {
 		System.out.println("registering!");
 		authenticate();
@@ -168,19 +176,23 @@ public class Application extends Controller {
 	/**
 	 * 
 	 */
-	public static String getTemplate(String template) {
-		String path = Application.TEMPLATEPATH;
+	public static String getTemplate(String path, String template) {
 		if (isMobile()) {
 			path += "mobile/";
 		}
 		return path + template;
 	}
 
-	static boolean isMobile() {
+	public static boolean isMobile() {
 		return session.get("mobile") != null;
 	}
 
-	static User getUser() {
-		return User.find(Security.connected());
+	public static User getUser() {
+		User user = User.find(Security.connected());
+		if (user == null) {
+			redirect("/login");
+		}
+		
+		return user;
 	}
 }

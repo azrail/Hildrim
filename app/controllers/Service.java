@@ -2,13 +2,12 @@ package controllers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import models.User;
 import models.miso.MisoCheckin;
 import models.miso.MisoEpisode;
-
-import org.junit.Before;
-
+import models.miso.MisoMedia;
 import play.Logger;
 import play.db.DB;
 import play.mvc.Controller;
@@ -17,11 +16,6 @@ import play.mvc.Router;
 public class Service extends Controller {
 
 	public static String	TEMPLATEPATH	= "Service/";
-
-	@Before
-	static void checkMobile() {
-		renderArgs.put("mobile", session.get("mobile"));
-	}
 
 	/**
 	 * 
@@ -42,6 +36,16 @@ public class Service extends Controller {
 		return User.find(Security.connected());
 	}
 
+	public static void lastCheckins(Integer rpp) {
+		if (rpp == null) {
+			rpp = 30;
+		}
+		User user = getUser();
+		System.out.println(user.username);
+		List<MisoCheckin> misocheckins = MisoCheckin.findAll(user, rpp);
+		render("Service/lastCheckins.json", misocheckins);
+	}
+
 	public static void updateMiso() {
 		User user = getUser();
 		User.updateMisoUserDetails(user);
@@ -49,6 +53,19 @@ public class Service extends Controller {
 		Long cnt = Service.updateCheckinCount();
 		Logger.debug("Updated %d Checkins", cnt);
 		Logger.debug("Redirecting to %s", Router.getFullUrl("Application.desktop"));
+		redirect("Application.desktop");
+	}
+
+	public static void updateMisoCheckins() {
+		User user = getUser();
+		Logger.debug("Updating MisoUserDetails for User %s", user.username);
+		User.updateMisoUserDetails(user);
+		Logger.debug("Updating MisoCheckins for User %s", user.username);
+		MisoCheckin.updateCheckins(user);
+		Logger.debug("Updating MisoMedia for User %s", user.username);
+		MisoMedia.getMediaDetails(user);
+		Logger.debug("Updating MisoCheckinCount for User %s", user.username);
+		Service.updateCheckinCount();
 		redirect("Application.desktop");
 	}
 
@@ -68,7 +85,7 @@ public class Service extends Controller {
 					misoEpisode.checkins = checkins;
 					misoEpisode.save();
 				}
-				
+
 				cnt++;
 			}
 		} catch (SQLException e) {

@@ -18,7 +18,7 @@
 				<li>Twitter: #{if twitter_enabled}On#{/if}#{else}Off#{/else}, Facebook: #{if facebook_enabled}On#{/if}#{else}Off#{/else}</li>
 				<li>
 					<div class="ui-btn-text">Bages: ${user.miso.badge_count}, Checkins: ${user.miso.checkin_count}, Points: ${user.miso.total_points}
-						<a href="@{Service.updateMiso()}" title="Update Miso Details & Checkins" class="ui-li-link-alt ui-btn ui-btn-up-c">
+						<a href="@{Service.updateMisoCheckins()}" title="Update Miso Details & Checkins" class="ui-li-link-alt ui-btn ui-btn-up-c">
 							<span class="ui-btn-inner">
 								<span class="ui-btn-text"></span>
 								<span title="" data-theme="d" class="ui-btn ui-btn-icon-notext ui-btn-corner-all ui-shadow ui-btn-up-d">
@@ -51,7 +51,9 @@
 		</div>
 	</div>
 
-	<div data-role="footer" class="footer-docs" data-theme="c"> 
-		<p>&copy; 2011 The Hildrim Project</p> 
+	<div data-role="footer" data-id="footer" data-position="fixed" class="ui-bar"> 
+		<a href="@{Application.desktop()}" data-role="button" data-icon="home">Desktop</a>
+		<a href="@{Application.checkins()}" data-role="button">Chekins</a>
+		<a href="#" data-role="button">Add</a>
 	</div>	
 </div>

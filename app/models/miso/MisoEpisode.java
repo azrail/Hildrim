@@ -72,11 +72,15 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	 * The poster image for this episode object
 	 * http://gomiso.com/uploads/BAhbCFsHOgZm.png
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			poster_image_url;
 	/**
 	 * The thumbnail poster image for this episode object
 	 * http://gomiso.com/uploads/JHDkcDlskS.png
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			poster_image_url_small;
 	/**
 	 * A short text description/synopsis of the episode Leo meets his real
@@ -84,7 +88,6 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 	 */
 	@Lob
 	@MaxSize(10000)
-
 	public String			summary;
 	/**
 	 * Comma-delimited actors related to this media. Christian Bale, Heath
@@ -103,6 +106,10 @@ public class MisoEpisode extends Model implements Comparable<MisoEpisode> {
 		return MisoEpisode.find("media_id = ? and episode_num = ? and season_num = ?", media_id, episode, season).first();
 	}
 
+	public static List<MisoEpisode> findEpisodes(Long media_id) {
+		return MisoEpisode.find("media_id = ?", media_id).fetch();
+	}
+	
 	/**
 	 * @param media_id
 	 * @param user

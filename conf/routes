@@ -5,9 +5,13 @@
 # Home page
 GET     /                                       Application.index
 GET     /desktop                    			Application.desktop
+GET     /checkins                    			Application.checkins
 GET     /register                    			Application.register
 GET		/switch2mobile							Application.setMobileMode
 GET		/switch2desktop							Application.setDesktopMode
+
+# Media
+GET		/media/checkin/{checkinId}												Media.checkin
 
 # Series
 GET     /series                                     							Series.index
@@ -18,8 +22,10 @@ GET     /series/{media_id}/season/{season}/episode/{episode}  					Series.showEp
 GET     /series/{media_id}/checkinEpisode/season/{season}/episode/{episode}  	Series.checkinEpisode
 
 # Services
+GET		/service/checkins														Service.lastCheckins
 GET		/service/update/miso													Service.updateMiso
 GET     /service/update/checkincount 											Service.updateCheckinCount
+GET		/service/update/miso/async												Service.updateMisoCheckins
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

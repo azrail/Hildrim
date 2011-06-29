@@ -1,0 +1,70 @@
+#{extends 'mainSenchaTouch.html' /}
+#{set title:'Welcome back ' + user.username + '!'/}
+#{set css:'<link rel="stylesheet" href="public/css/guide.css" type="text/css">'.raw()/}
+
+Ext.setup({
+    tabletStartupScreen: 'tablet_startup.png',
+    phoneStartupScreen: 'phone_startup.png',
+    icon: 'icon.png',
+    glossOnIcon: false,
+    onReady: function() {
+        var timeline = new Ext.Component({
+            title: 'Timeline',
+            cls: 'timeline',
+            scroll: 'vertical',
+            tpl: [
+                '<tpl for=".">',
+                '<div class="tweet">',
+                '<div class="avatar"><img src="{poster_url_small}" /></div>',
+                '<div class="tweet-content">',
+                '<h2>{title}</h2>',
+                '<p>{summary}</p>',
+                '</div>',
+                '</div>',
+                '</tpl>'
+            ]
+        });
+
+        var refresh = function() {
+                Ext.util.JSONP.request({
+                    url: '@@{Service.lastCheckins()}',
+                    callbackKey: 'callback',
+                    params: {
+                        rpp: 30
+                    },
+                    callback: function(data) {
+                        if (data && data.results && !!data.results.length) {
+                            data = data.results;
+
+                            // Update the tweets in timeline
+                            timeline.update(data);
+                        } else {
+                            timeline.getContentTarget().update('No Results Available');
+                        }
+                    }
+                });
+        };
+
+        var panel = new Ext.TabPanel({
+            fullscreen: true,
+            cardSwitchAnimation: 'slide',
+            items: [timeline]
+        });
+
+
+        var tabBar = panel.getTabBar();
+        tabBar.addDocked({
+            cls: 'refreshBtn',
+            xtype: 'button',
+            ui: 'plain',
+            iconMask: true,
+            iconCls: 'refresh',
+            dock: 'right',
+            stretch: false,
+            align: 'center',
+            handler: refresh
+        });
+        refresh();
+        panel.doComponentLayout();
+    }
+});

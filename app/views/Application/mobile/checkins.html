@@ -1,0 +1,18 @@
+#{extends 'mainMobile.html' /}
+#{set title:'Checkins'/}
+
+<div data-role="page" id="checkins">
+	<div data-role="header">
+		<a href="@{Application.desktop()}" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left">Home</a>
+		<h1>Checkins</h1>
+		<a href="@{Application.desktop()}" data-icon="back" data-iconpos="notext" data-direction="reverse" class="ui-btn-right">Back</a>
+	</div>
+	<div data-role="content">
+		<ul data-role="listview" data-theme="c" data-dividertheme="a"><li>Loading..</li></ul>
+	</div>
+	<div data-role="footer" data-id="footer" data-position="fixed" class="ui-bar">
+		<a href="@{Application.desktop()}" data-role="button" data-icon="home">Desktop</a>
+		<a href="@{Application.checkins()}" data-role="button">Chekins</a>
+		<a href="#" data-role="button">Add</a>
+	</div>
+</div>

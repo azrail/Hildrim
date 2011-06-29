@@ -1,0 +1,29 @@
+{
+	"results": [
+		#{list misocheckins}
+		{
+			%{models.miso.MisoMedia misoMedia = _.getMisoMedia()}%
+			"created_at": "${_.created_at}",
+			"comment": "${_.comment}",
+			"checkin_id": "${_.checkin_id}",
+			"user_username": "${_.user_username}",
+			"user_full_name": "${_.user_full_name}",
+			"user_profile_image_url": "${_.user_profile_image_url}",
+			"poster_url": "${misoMedia.poster_image_url}",
+			"poster_url_small": "${misoMedia.poster_image_url_small}",
+			"title": "${_.media_title}#{if !_.isMovie} - ${_.episode_title} (${_.episode_label})#{/if}",
+			"summary": "#{if _.isMovie}${misoMedia.summary.nl2br()}#{/if}#{if !_.isMovie}${_.getMisoEpisode().summary.nl2br()}#{/if}",
+			"media_id": "${_.media_id}",
+			"media_title": "${_.media_title}",
+			"media_poster_url": "${_.media_poster_url}",
+			"media_poster_url_small": "${_.media_poster_url_small}",
+			"episode_num": "${_.episode_num}",
+			"episode_season_num": "${_.episode_season_num}",
+			"episode_label": "${_.episode_label}",
+			"episode_title": "${_.episode_title}",
+			"episode_poster_url": "${_.episode_poster_url}",
+			"episode_poster_url_small": "${_.episode_poster_url_small}"
+		}#{if !_isLast},#{/if}
+		#{/list}
+	]
+}

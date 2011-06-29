@@ -6,12 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 import models.User;
@@ -26,12 +24,15 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 
 import play.Logger;
+import play.data.validation.MaxSize;
 import play.db.DB;
 import play.db.jpa.Model;
+import play.libs.F.Promise;
 
 import com.google.gson.Gson;
 
 import controllers.Application;
+import controllers.Service;
 
 /**
  * Represents an Miso Checkin
@@ -82,6 +83,8 @@ public class MisoCheckin extends Model {
 	 * The profile image for the given user.
 	 * http://gomiso.com/uploads/BAhbCFsHOgZm.png
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			user_profile_image_url;
 	/**
 	 * The media id for this checkin. 5678
@@ -95,11 +98,15 @@ public class MisoCheckin extends Model {
 	 * The poster image for the given media.
 	 * http://gomiso.com/uploads/BAhbCFsHOgZm.png
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			media_poster_url;
 	/**
 	 * The thumbnail poster image for the given media.
 	 * http://gomiso.com/uploads/BAhbCFsHOgZm.png
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			media_poster_url_small;
 	/**
 	 * The number of the episode checked into (if this is an episode checkin) 12
@@ -124,12 +131,24 @@ public class MisoCheckin extends Model {
 	 * The image url of the episode checked into (if this is an episode checkin)
 	 * http://gomiso.com/abcdefg.jpg
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			episode_poster_url;
 	/**
 	 * The thumbnail image url of the episode checked into (if this is an
 	 * episode checkin) http://gomiso.com/abcdefg.jpg
 	 */
+	@Lob
+	@MaxSize(10000)
 	public String			episode_poster_url_small;
+
+	public MisoMedia getMisoMedia() {
+		return MisoMedia.getMediaDetails(media_id, user);
+	}
+	
+	public MisoEpisode getMisoEpisode() {
+		return MisoEpisode.findEpisode(media_id, episode_num, episode_season_num);
+	}
 
 	/**
 	 * Checks Miso Checkins
@@ -151,6 +170,7 @@ public class MisoCheckin extends Model {
 		while (getNewestCheckins(user)) {
 			Logger.debug("Getting More Checkins...");
 		}
+		
 	}
 
 	/**
@@ -270,8 +290,10 @@ public class MisoCheckin extends Model {
 					mc.episode_title = misoCheckin.episode_title;
 					mc.episode_poster_url = misoCheckin.episode_poster_url;
 					mc.episode_poster_url_small = misoCheckin.episode_poster_url_small;
+				
 					mc.user = user;
 					mc.save();
+
 				}
 
 			} catch (Exception e) {
@@ -382,6 +404,28 @@ public class MisoCheckin extends Model {
 	}
 
 	/**
+	 * Find all
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return List<MisoCheckin> list of Episodes
+	 */
+	public static List<MisoCheckin> findAll(User user) {
+		return MisoCheckin.find("user_id = ? order by checkin_id desc", user.id).fetch();
+	}
+	
+	/**
+	 * Find all
+	 * 
+	 * @param user
+	 *            The Authenticated User
+	 * @return List<MisoCheckin> list of Episodes
+	 */
+	public static List<MisoCheckin> findAll(User user, int limit) {
+		return MisoCheckin.find("user_id = ? order by checkin_id desc", user.id).fetch(limit);
+	}
+	
+	/**
 	 * Find Series, no Episodes
 	 * 
 	 * @param user
@@ -419,5 +463,10 @@ public class MisoCheckin extends Model {
 	 */
 	public static List<MisoCheckin> findSeriesEpisodes(User user, Long media_id) {
 		return MisoCheckin.find("user_id = ? and media_id = ? order by media_title, episode_label desc", user.id, media_id).fetch();
+	}
+
+	public static MisoCheckin findByCheckinId(Long checkinId) {
+		return MisoCheckin.find("checkin_id = ?", checkinId).first();
+		
 	}
 }
