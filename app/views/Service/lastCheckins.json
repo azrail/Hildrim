@@ -2,7 +2,7 @@
 	"results": [
 		#{list misocheckins}
 		{
-			%{models.miso.MisoMedia misoMedia = _.getMisoMedia()}%
+			%{misoMedia = _.getMisoMedia()}%
 			"created_at": "${_.created_at}",
 			"comment": "${_.comment}",
 			"checkin_id": "${_.checkin_id}",
